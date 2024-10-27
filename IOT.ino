@@ -1,6 +1,6 @@
-// ĐỘNG CƠ DC
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include <Servo.h> // Thêm thư viện Servo
 
 // Khai báo các chân điều khiển động cơ và LED
 const int motorPin1 = D6; // Chân IN1 của mạch điều khiển động cơ
@@ -9,6 +9,8 @@ const int ledPin1 = D1;   // Chân kết nối LED 1
 const int ledPin2 = D2;   // Chân kết nối LED 2
 const int ledPin3 = D3;   // Chân kết nối LED 3
 
+Servo myservo; // Khai báo đối tượng Servo 
+// Servo dây cam nối với D4 của wifi , dây đỏ nối 3V3 của wifi, dây đà nối GND của wifi
 ESP8266WebServer server(80); // Khởi tạo server trên cổng 80
 
 void setup() {
@@ -30,13 +32,16 @@ void setup() {
   pinMode(ledPin2, OUTPUT);
   pinMode(ledPin3, OUTPUT);
 
+  // Thiết lập Servo
+  myservo.attach(D4); // Gán chân D4 cho Servo
+
   // Thiết lập server
   server.on("/", [] {
     server.send(200, "text/html",
                 "<!DOCTYPE html>"
                 "<html>"
                 "<head>"
-                "<title>Control DC Motor and LED</title>"
+                "<title>Control DC Motor, Servo, and LED</title>"
                 "<script>"
                 "function sendOption() {"
                 "var optionInput = document.getElementById('option');"
@@ -49,7 +54,7 @@ void setup() {
                 "</script>"
                 "</head>"
                 "<body>"
-                "<label>Option (1: Engine On, 2: Engine Off, 3: LED1 On, 4: LED1 Off, 5: LED2 On, 6: LED2 Off, 7: LED3 On, 8: LED3 Off): </label>"
+                "<label>Option (1: Fan On, 2: Fan Off, 3: Open Door, 4: Close Door, 5: Bedroom On, 6: Bedroom Off, 7: DiningRoom On, 8: DiningRoom Off, 9: LivingRoom On, 10: LivingRoom Off): </label>"
                 "<input type='text' id='option'>"
                 "<input type='button' value='Send' onclick='sendOption()'>"
                 "</body>"
@@ -77,6 +82,18 @@ void handleSendOption() {
         digitalWrite(motorPin2, LOW);
         Serial.println("Motor OFF");
         server.send(200, "text/plain", "Motor turned OFF");
+        break;
+      case 3:
+        // Quay Servo 90 độ (Mở cửa)
+        myservo.write(90);
+        Serial.println("Servo 90 degrees");
+        server.send(200, "text/plain", "Servo turned to 90 degrees");
+        break;
+      case 4:
+        // Quay Servo về 0 độ (Đóng cửa)
+        myservo.write(0);
+        Serial.println("Servo 0 degrees");
+        server.send(200, "text/plain", "Servo turned to 0 degrees");
         break;
       case 5:
         // Bật LED 1 (Bedroom)
