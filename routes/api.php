@@ -15,8 +15,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/upload-audio', [\App\Http\Controllers\IOTController::class, 'uploadaudio']);
-Route::post('/upload-text', [\App\Http\Controllers\IOTController::class, 'uploadText']);
-Route::post('/upload-image', [\App\Http\Controllers\IOTController::class, 'uploadImage']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
