@@ -9,6 +9,7 @@ use Throwable;
 
 class IOTController extends Controller
 {
+
     public function uploadaudio(Request $request) 
     {
         if (!$request->hasFile('audio')) {
@@ -20,12 +21,12 @@ class IOTController extends Controller
     
         $audioFile = $request->file('audio');
         $fileName = time() . '.' . $audioFile->getClientOriginalExtension();
-        $audioFile->storeAs('audio', $fileName, 'public');
+        $audioFile->storeAs('audio', $fileName, 'public'); // lưu file không tốn thời gian bằng gửi file lên ngrock 
     
         try {
             $response = Http::timeout(90)
                 ->attach('file', file_get_contents($audioFile->getRealPath()), $fileName)
-                ->post('https://545b-34-125-41-251.ngrok-free.app/transcribe');
+                ->post('https://7c8e-34-125-92-158.ngrok-free.app/transcribe');
             
             // Check if the transcription API response was successful
             if (!$response->successful()) {
@@ -40,7 +41,12 @@ class IOTController extends Controller
             Log::info($transcriptionData['transcription']); 
             
             $option = $transcriptionData['index'];
-            
+
+            // sleep(5);
+            // $numbers = [0, 5, 6, 7, 8, 9, 10, 0];
+            // $option = $numbers[array_rand($numbers)];
+            // $transcriptionData['transcription'] = 'ABC successful !' . $option;
+
             // Check for invalid option
             if ($option == 0) {
                 return response()->json([
