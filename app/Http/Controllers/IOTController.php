@@ -24,10 +24,16 @@ class IOTController extends Controller
         $audioFile->storeAs('audio', $fileName, 'public'); // lưu file không tốn thời gian bằng gửi file lên ngrock 
     
         try {
-            $response = Http::timeout(90)
-                ->attach('file', file_get_contents($audioFile->getRealPath()), $fileName)
-                ->post('https://7c8e-34-125-92-158.ngrok-free.app/transcribe');
-            
+            // Sử dụng stream thay vì file_get_contents
+            $fileStream = fopen($audioFile->getRealPath(), 'r');
+
+            // Cấu hình thời gian chờ thấp hơn, ví dụ: 120 giây
+            $response = Http::timeout(120)
+                ->attach('file', $fileStream, $fileName)
+                ->post('https://c93d-34-82-65-32.ngrok-free.app/transcribe');
+
+            fclose($fileStream); // Đóng stream sau khi sử dụng
+
             // Check if the transcription API response was successful
             if (!$response->successful()) {
                 return response()->json([
@@ -56,7 +62,7 @@ class IOTController extends Controller
             }
     
             // Send option to ESP8266
-            $url = "http://192.168.89.168/sendOption";
+            $url = "http://192.168.68.168/sendOption";
             $data = ['option' => $option];
             $espResponse = Http::asForm()->post($url, $data);
     
